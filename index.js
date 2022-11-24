@@ -10,32 +10,21 @@ const io = socketIO(server, {
     }
 })
 
-const offerMap = new Map();
-
-app.get('/', (req, res) => {
-    console.log("request: ", req)
-    console.log("req.rawHeaders: ", req.rawHeaders)
-    res.send('Hello World!')
-  })
-  
+const offerMap = new Map();  
 
 io.on('connection', (socket) => {
     console.log("socket connected: ", socket.id);
     socket.on('join', ({roomId}) => {
-        console.log("roomId: ", roomId);
         socket.join(roomId);
         const prevOffer = offerMap.get(roomId);
-        console.log("prevOPffer: ", prevOffer);
         socket.emit('remote-offer', {offer: prevOffer});
     })
     
     socket.on('new-offer', ({offer, roomId}) => {
-        console.log("new offer received: ", roomId);
         offerMap.set(roomId, offer);
     })
 
     socket.on('new-answer', ({answer, roomId}) => {
-        console.log("new answer received: ", roomId);
         socket.to(roomId).emit('remote-answer', {answer})
     })
 
